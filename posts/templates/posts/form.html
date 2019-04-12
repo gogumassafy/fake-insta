@@ -4,7 +4,12 @@
 <h1>EDIT</h1>
 {% endif %}
 <form action="" method="POST" enctype="multipart/form-data">
-    {% csrf_token %} {% bootstrap_form post_form %} {% buttons %}
+    {% csrf_token %}
+    {% bootstrap_form post_form %} 
+    {% if image_form %} 
+        {% bootstrap_form image_form show_label=False %} 
+    {% endif %} 
+    {% buttons %}
     <button type="submit" class="btn btn-primary">Submit</button>
     <a href="{% url 'posts:list' %}" class="btn btn-info">Back</a>{% endbuttons %}
 </form>
