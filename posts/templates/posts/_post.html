@@ -24,6 +24,14 @@
     {% else %}
     <img src="#" alt="No Image"> {% endif %}
     <div class="card-body">
+      <a href="{% url 'posts:like' post.pk %}" class="card-link">
+          {% if user in post.like_users.all %}
+          <i class="fas fa-heart fa-lg" style="color:crimson"></i>
+          {% else %}
+          <i class="fas fa-heart fa-lg" style="color:black"></i>
+          {% endif %}
+      </a>
+      <p class="card-text">{{ post.like_users.count }} 명이 좋아합니다.</p>
       <p class="card-text">{{ post.content }}</p>
       {% if request.user == post.user %}
       <a href="{% url 'posts:update' post.pk %}" class='btn btn-warning'>수정</a>
@@ -33,13 +41,12 @@
       </form>
       {% endif %}
       <hr> {% for comment in post.comment_set.all %}
-      <div class="card-text"><strong>{{ comment.user }}</strong> {{ comment }}
-      {% if comment.user == request.user %}
-      <form action="{% url 'posts:comment_delete' post.pk comment.pk %}" method="POST" style="display:inline">
-        {% csrf_token %}
-        <button type="submit" class="border-0"><i class="fas fa-times"></i></button>
-      </form>
-      {% endif %}</div>
+      <div class="card-text"><strong>{{ comment.user }}</strong> {{ comment }} {% if comment.user == request.user %}
+        <form action="{% url 'posts:comment_delete' post.pk comment.pk %}" method="POST" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="border-0"><i class="fas fa-times"></i></button>
+        </form>
+        {% endif %}</div>
       {% empty %}
       <p class="card-text">댓글이 없습니다.</p>
       {% endfor %}
@@ -51,8 +58,7 @@
         <input type="submit" value="작성" class="btn-light">
       </form>
       {% else %}
-       <a href="{% url 'accounts:login' %}" class="card-link">댓글을 작성하려면 로그인 하세요.</a>
-      {% endif %}
+      <a href="{% url 'accounts:login' %}" class="card-link">댓글을 작성하려면 로그인 하세요.</a> {% endif %}
     </div>
   </div>
 </div>
