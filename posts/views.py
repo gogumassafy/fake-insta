@@ -1,13 +1,22 @@
 from django.shortcuts import render, redirect, get_list_or_404, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.db.models import Q
+from itertools import chain
 from .forms import PostForm, ImageForm, CommentForm
 from .models import Post, Image, Comment
 
 
 # Create your views here.
 def list(request):
-    posts = get_list_or_404(Post.objects.order_by('-pk'))
+    followings = request.user.followings.all()
+    # 1
+    posts = Post.objects.filter(
+        Q(user__in=followings) | Q(user=request.user.id)
+        ).order_by('-pk')
+    # 2
+    # chain_followings = chain(followings, [request.user])
+    # posts = Post.objects.filter(user__in=chain_followings).order_by('-pk')
     comment_form = CommentForm()
     context = {
         'posts': posts,
@@ -113,3 +122,16 @@ def like(request, post_pk):
     # else:
     #     post.like_users.add(user)
     #     return redirect('posts:list')
+    
+
+@login_required
+def explore(request):
+    posts = Post.objects.order_by('-pk')
+    # 나만 빼고 다 가져오는거
+    # posts = Post.objects.exclude(user=request.user).order_by('-pk')
+    comment_form = CommentForm()
+    context = {
+        'posts': posts,
+        'comment_form': comment_form,
+    }
+    return render(request, 'posts/list.html', context)
